@@ -1,6 +1,11 @@
 pool:
   vmImage: 'ubuntu-latest'
   demands: maven
+variables:
+  resourceGroupName: 'myapp-rg'
+  location: 'eastus'
+  webAppName: 'jsWithBicep'
+  templateFile: 'azure-bicep-template.yaml'
 
 stages:
   - stage: Build
@@ -27,3 +32,31 @@ stages:
         inputs:
           PathtoPublish: '$(build.artifactstagingdirectory)'
         condition: succeededOrFailed()
+
+  - stage: deploy
+    jobs:
+    - job: build
+      steps:
+      - task: AzureCLI@2
+        displayName: Preview Bicep Changes
+        inputs:
+          azureSubscription: 'b916e0d5-3358-492b-b756-7ea32791cc88'
+          scriptType: 'bash'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            az --version
+            az group create --name $(resourceGroupName) --location $(location)
+            az deployment group what-if --resource-group $(resourceGroupName) \
+              --template-file $(templateFile) \
+              --parameters webAppName=$(webAppName)
+
+      - task: AzureCLI@2
+        displayName: Deploy Bicep To Azure
+        inputs:
+          azureSubscription: 'b916e0d5-3358-492b-b756-7ea32791cc88'
+          scriptType: 'bash'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            az deployment group create --resource-group $(resourceGroupName) \
+              --template-file $(templateFile) \
+              --parameters webAppName=$(webAppName)
