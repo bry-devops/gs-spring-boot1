@@ -2,24 +2,28 @@ pool:
   vmImage: 'ubuntu-latest'
   demands: maven
 
-steps:
-- task: Maven@3
-  displayName: 'Maven app/pom.xml'
-  inputs:
-    mavenPomFile: 'app/pom.xml'
-    codeCoverageToolOption: Cobertura
-    jdkVersionOption: 1.8
+stages:
+  - stage: Build and Unit Test
+    jobs:
+    - job: build
+      steps:
+      - task: Maven@3
+        displayName: 'Maven app/pom.xml'
+        inputs:
+          mavenPomFile: 'app/pom.xml'
+          codeCoverageToolOption: Cobertura
+          jdkVersionOption: 1.8
 
-- task: CopyFiles@2
-  displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
-  inputs:
-    SourceFolder: '$(system.defaultworkingdirectory)'
-    Contents: '**/*.jar'
-    TargetFolder: '$(build.artifactstagingdirectory)'
-  condition: succeededOrFailed()
+      - task: CopyFiles@2
+        displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
+        inputs:
+          SourceFolder: '$(system.defaultworkingdirectory)'
+          Contents: '**/*.jar'
+          TargetFolder: '$(build.artifactstagingdirectory)'
+        condition: succeededOrFailed()
 
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact: drop'
-  inputs:
-    PathtoPublish: '$(build.artifactstagingdirectory)'
-  condition: succeededOrFailed()
+      - task: PublishBuildArtifacts@1
+        displayName: 'Publish Artifact: drop'
+        inputs:
+          PathtoPublish: '$(build.artifactstagingdirectory)'
+        condition: succeededOrFailed()
