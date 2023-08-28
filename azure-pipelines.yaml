@@ -87,6 +87,6 @@ stages:
                 azureSubscription: $(azureSubscription)
                 appType: webAppLinux
                 appName: $(webAppName)
-                package: '$(System.ArtifactsDirectory)/drop/**/target/*.?(war|jar)'
+                package: '$(System.ArtifactsDirectory)/drop/app/target/gs-spring-boot-0.1.0.jar'
                 startUpCommand: 'java -jar /home/site/wwwroot/gs-spring-boot-0.1.0.jar --server.port=80'
                 
