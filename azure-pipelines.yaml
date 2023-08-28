@@ -80,6 +80,8 @@ stages:
               displayName: 'Download Pipeline Artifact'
               inputs:
                 buildType: 'current'
+                itemPattern: '**/target/*.jar'
+                targetPath: '$(System.ArtifactsDirectory)'
 
             - task: AzureWebApp@1
               displayName: 'Azure Web App Deploy: gs-spring-boot'
