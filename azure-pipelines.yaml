@@ -76,18 +76,12 @@ stages:
         runOnce:
           deploy:
             steps:
-            - task: DownloadPipelineArtifact@1
-              displayName: 'Download Pipeline Artifact'
-              inputs:
-                buildType: 'current'
-                targetPath: '$(System.ArtifactsDirectory)'
-
-            - task: AzureWebApp@1
-              displayName: 'Azure Web App Deploy: gs-spring-boot'
+            - task: AzureRmWebAppDeployment@4
+              displayName: 'Deploy Azure App Service'
               inputs:
                 azureSubscription: 'Pay-As-You-Go (b916e0d5-3358-492b-b756-7ea32791cc88)'
                 appType: 'webAppLinux'
                 appName: '$(webAppName)'
-                package: '$(System.ArtifactsDirectory)/drop/**/target/*.?(war|jar)'
+                package: '$(System.DefaultWorkingDirectory)/_CI/drop/app/target/gs-spring-boot-0.1.0.jar'
                 startUpCommand: 'java -jar /home/site/wwwroot/gs-spring-boot-0.1.0.jar --server.port=80'
-
+                
