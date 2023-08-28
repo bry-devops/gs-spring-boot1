@@ -62,32 +62,31 @@ stages:
             az deployment group create --resource-group $(resourceGroupName) \
               --template-file $(templateFile) \
               --parameters webAppName=$(webAppName)
-      
-- stage: Deploy
-  displayName: Deploy stage
-  dependsOn: provision
-  condition: succeeded()
-  jobs:
-  - deployment: DeployLinuxWebApp
-    displayName: Deploy Linux Web App
-    environment: 'development'
-    pool: 
-      vmImage: $(vmImageName)
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: DownloadPipelineArtifact@1
-            displayName: 'Download Pipeline Artifact'
-            inputs:
-              buildType: 'current'
+  - stage: Deploy
+    displayName: Deploy stage
+    dependsOn: provision
+    condition: succeeded()
+    jobs:
+    - deployment: DeployLinuxWebApp
+      displayName: Deploy Linux Web App
+      environment: 'development'
+      pool: 
+        vmImage: $(vmImageName)
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - task: DownloadPipelineArtifact@1
+              displayName: 'Download Pipeline Artifact'
+              inputs:
+                buildType: 'current'
 
-          - task: AzureWebApp@1
-            displayName: 'Azure Web App Deploy: gs-spring-boot'
-            inputs:
-              azureSubscription: $(azureSubscription)
-              appType: webAppLinux
-              appName: $(webAppName)
-              package: '$(System.ArtifactsDirectory)/drop/**/target/*.?(war|jar)'
-              startUpCommand: 'java -jar /home/site/wwwroot/gs-spring-boot-0.1.0.jar --server.port=80'
+            - task: AzureWebApp@1
+              displayName: 'Azure Web App Deploy: gs-spring-boot'
+              inputs:
+                azureSubscription: $(azureSubscription)
+                appType: webAppLinux
+                appName: $(webAppName)
+                package: '$(System.ArtifactsDirectory)/drop/**/target/*.?(war|jar)'
+                startUpCommand: 'java -jar /home/site/wwwroot/gs-spring-boot-0.1.0.jar --server.port=80'
                 
