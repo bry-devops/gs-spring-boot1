@@ -7,6 +7,7 @@ variables:
   webAppName: 'jsWithBicep'
   templateFile: 'azure-bicep-template.bicep'
   azureSubscription: 'Pay-As-You-Go (b916e0d5-3358-492b-b756-7ea32791cc88)'
+  vmImageName : 'ubuntu-latest'
 
 stages:
   - stage: Build
@@ -24,7 +25,7 @@ stages:
         displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
         inputs:
           SourceFolder: '$(system.defaultworkingdirectory)'
-          Contents: '**/*.jar'
+          Contents: '**/target/*.?(war|jar)'
           TargetFolder: '$(build.artifactstagingdirectory)'
         condition: succeededOrFailed()
 
@@ -61,27 +62,32 @@ stages:
             az deployment group create --resource-group $(resourceGroupName) \
               --template-file $(templateFile) \
               --parameters webAppName=$(webAppName)
+      
+- stage: Deploy
+  displayName: Deploy stage
+  dependsOn: provision
+  condition: succeeded()
+  jobs:
+  - deployment: DeployLinuxWebApp
+    displayName: Deploy Linux Web App
+    environment: 'development'
+    pool: 
+      vmImage: $(vmImageName)
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: DownloadPipelineArtifact@1
+            displayName: 'Download Pipeline Artifact'
+            inputs:
+              buildType: 'current'
 
-  - stage: Deploy
-    displayName: Deploy App
-    dependsOn: Provision
-    condition: succeeded()
-    jobs:
-    - deployment: DeployLinuxWebApp
-      displayName: Deploy Linux Web App
-      environment: 'development'
-      pool: 
-        vmImage: $(vmImageName)
-      strategy:
-        runOnce:
-          deploy:
-            steps:
-            - task: AzureRmWebAppDeployment@4
-              displayName: 'Deploy Azure App Service'
-              inputs:
-                azureSubscription: 'Pay-As-You-Go (b916e0d5-3358-492b-b756-7ea32791cc88)'
-                appType: 'webAppLinux'
-                appName: '$(webAppName)'
-                package: '$(System.DefaultWorkingDirectory)/_CI/drop/app/target/gs-spring-boot-0.1.0.jar'
-                startUpCommand: 'java -jar /home/site/wwwroot/gs-spring-boot-0.1.0.jar --server.port=80'
+          - task: AzureWebApp@1
+            displayName: 'Azure Web App Deploy: gs-spring-boot'
+            inputs:
+              azureSubscription: $(azureSubscription)
+              appType: webAppLinux
+              appName: $(webAppName)
+              package: '$(System.ArtifactsDirectory)/drop/**/target/*.?(war|jar)'
+              startUpCommand: 'java -jar /home/site/wwwroot/gs-spring-boot-0.1.0.jar --server.port=80'
                 
