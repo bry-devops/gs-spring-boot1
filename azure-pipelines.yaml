@@ -2,7 +2,7 @@ pool:
   vmImage: 'ubuntu-latest'
   demands: maven
 variables:
-  resourceGroupName: 'myapp-rg'
+  resourceGroupName: 'myapp-rg2'
   location: 'westus'
   webAppName: 'jsWithBicep'
   templateFile: 'azure-bicep-template.bicep'
@@ -33,9 +33,9 @@ stages:
           PathtoPublish: '$(build.artifactstagingdirectory)'
         condition: succeededOrFailed()
 
-  - stage: deploy
+  - stage: Provision 
     jobs:
-    - job: build
+    - job: provision-infra
       steps:
       - task: AzureCLI@2
         displayName: Preview Bicep Changes
@@ -60,4 +60,31 @@ stages:
             az deployment group create --resource-group $(resourceGroupName) \
               --template-file $(templateFile) \
               --parameters webAppName=$(webAppName)
+
+  - stage: Deploy
+    displayName: Deploy App
+    dependsOn: provision-infra
+    condition: succeeded()
+    jobs:
+    - deployment: DeployLinuxWebApp
+      displayName: Deploy Linux Web App
+      environment: 'development'
+      pool: 
+        vmImage: $(vmImageName)
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - task: DownloadPipelineArtifact@1
+              displayName: 'Download Pipeline Artifact'
+              inputs:
+                buildType: 'current'
+
+            - task: AzureWebApp@1
+              displayName: 'Azure Web App Deploy: gs-spring-boot'
+              inputs:
+                azureSubscription: $(azureSubscription)
+                appType: webAppLinux
+                appName: $(webAppName)
+                package: '$(System.ArtifactsDirectory)/drop/**/target/*.?(war|jar)'
 
