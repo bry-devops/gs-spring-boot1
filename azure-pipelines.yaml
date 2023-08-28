@@ -35,7 +35,7 @@ stages:
 
   - stage: Provision 
     jobs:
-    - job: provision-infra
+    - job: provision_infra
       steps:
       - task: AzureCLI@2
         displayName: Preview Bicep Changes
@@ -63,7 +63,7 @@ stages:
 
   - stage: Deploy
     displayName: Deploy App
-    dependsOn: provision-infra
+    dependsOn: provision_infra
     condition: succeeded()
     jobs:
     - deployment: DeployLinuxWebApp
