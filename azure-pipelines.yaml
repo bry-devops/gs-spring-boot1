@@ -3,7 +3,7 @@ pool:
   demands: maven
 variables:
   resourceGroupName: 'myapp-rg'
-  location: 'eastus'
+  location: 'westus'
   webAppName: 'jsWithBicep'
   templateFile: 'azure-bicep-template.yaml'
 
