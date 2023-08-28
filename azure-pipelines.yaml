@@ -6,6 +6,7 @@ variables:
   location: 'westus'
   webAppName: 'jsWithBicep'
   templateFile: 'azure-bicep-template.bicep'
+  azureSubscription: 'Pay-As-You-Go (b916e0d5-3358-492b-b756-7ea32791cc88)'
 
 stages:
   - stage: Build
