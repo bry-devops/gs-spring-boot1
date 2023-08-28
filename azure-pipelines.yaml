@@ -5,7 +5,7 @@ variables:
   resourceGroupName: 'myapp-rg'
   location: 'westus'
   webAppName: 'jsWithBicep'
-  templateFile: 'azure-bicep-template.yaml'
+  templateFile: 'azure-bicep-template.bicep'
 
 stages:
   - stage: Build
