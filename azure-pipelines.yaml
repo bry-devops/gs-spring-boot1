@@ -63,7 +63,7 @@ stages:
 
   - stage: Deploy
     displayName: Deploy App
-    dependsOn: provision_infra
+    dependsOn: Provision
     condition: succeeded()
     jobs:
     - deployment: DeployLinuxWebApp
