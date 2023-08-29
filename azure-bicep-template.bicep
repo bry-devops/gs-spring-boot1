@@ -4,7 +4,7 @@ param linuxFxVersion string = 'TOMCAT|9.0-jre8' // The runtime stack of web app
 param location string = resourceGroup().location // Location for all resources
 
 var appServicePlanName = toLower('AppServicePlan-${webAppName}')
-var webSiteName = toLower('wapp-${webAppName}')
+var webSiteName = toLower('${webAppName}')
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2020-06-01' = {
   name: appServicePlanName
