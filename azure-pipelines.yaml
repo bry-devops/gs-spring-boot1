@@ -90,10 +90,9 @@ stages:
               displayName: 'Azure Web App Deploy: gs-spring-boot'
               inputs:
                 azureSubscription: $(azureSubscription)
-                appType: webAppLinux
-                appName: $(webAppName)
+                appType: 'webAppLinux'
+                appName: '$(webAppName)'
                 package: '$(Pipeline.Workspace)/drop/app/target/*.*'
-                #package: '$(Pipeline.Workspace)/drop/app/target/gs-spring-boot-0.1.0.jar'
-                #package: '$(System.ArtifactsDirectory)/drop/app/target/gs-spring-boot-0.1.0.jar'
+                runtimeStack: 'TOMCAT|9.0-jre8'
                 startUpCommand: 'java -jar /home/site/wwwroot/gs-spring-boot-0.1.0.jar --server.port=80'
                 
