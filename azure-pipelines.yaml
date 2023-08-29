@@ -2,9 +2,9 @@ pool:
   vmImage: 'ubuntu-latest'
   demands: maven
 variables:
-  resourceGroupName: 'myapps'
+  resourceGroupName: 'TestAppRG'
   location: 'westus'
-  webAppName: 'jsWithBicep'
+  webAppName: 'jsWithBicep01'
   templateFile: 'azure-bicep-template.bicep'
   azureSubscription: 'Pay-As-You-Go (b916e0d5-3358-492b-b756-7ea32791cc88)'
   vmImageName : 'ubuntu-latest'
