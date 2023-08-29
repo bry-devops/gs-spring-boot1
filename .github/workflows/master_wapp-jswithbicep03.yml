@@ -4,10 +4,14 @@
 name: Build and deploy WAR app to Azure Web App - wapp-jswithbicep03
 
 on:
-  push:
-    branches:
-      - master
+  # push:
+  #  branches:
+  #    - master
   workflow_dispatch:
+
+env:
+  RESOURCE_GROUP: myapp-rg-github-actions
+  WEBAPP_NAME: js-with-bicep
 
 jobs:
   build:
@@ -34,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     environment:
-      name: 'Production'
+      name: 'development-github-actions'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
@@ -48,6 +52,6 @@ jobs:
         uses: azure/webapps-deploy@v2
         with:
           app-name: 'wapp-jswithbicep03'
-          slot-name: 'Production'
+          slot-name: 'development-github-actions'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_8255BDC62B274780B34DD7B8352A2745 }}
           package: '*.war'
