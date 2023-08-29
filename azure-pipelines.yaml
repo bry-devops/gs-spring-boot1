@@ -38,6 +38,8 @@ stages:
 
 
   - stage: Provision 
+    dependsOn: Build
+    condition: succeeded()
     jobs:
     - job: provision_infra
       steps:
