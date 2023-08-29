@@ -4,7 +4,7 @@ pool:
 variables:
   resourceGroupName: 'MyTestApp'
   location: 'westus'
-  webAppName: 'jsWithBicep02'
+  webAppName: 'jsWithBicep03'
   templateFile: 'azure-bicep-template.bicep'
   azureSubscription: 'Pay-As-You-Go (b916e0d5-3358-492b-b756-7ea32791cc88)'
   vmImageName : 'ubuntu-latest'
