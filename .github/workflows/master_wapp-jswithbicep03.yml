@@ -32,7 +32,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: java-app
-          path: '${{ github.workspace }}/target/*.war'
+          path: '${{ github.workspace }}/target/*.jar'
 
   deploy:
     runs-on: ubuntu-latest
@@ -54,4 +54,4 @@ jobs:
           app-name: 'wapp-jswithbicep03'
           slot-name: 'development-github-actions'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_8255BDC62B274780B34DD7B8352A2745 }}
-          package: '*.war'
+          package: '*.jar'
