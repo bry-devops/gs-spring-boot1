@@ -11,7 +11,7 @@ on:
 
 env:
   RESOURCE_GROUP: myapp-rg-github-actions
-  WEBAPP_NAME: js-with-bicep
+  WEBAPP_NAME: js-with-bicep-and-github
 
 jobs:
   build:
