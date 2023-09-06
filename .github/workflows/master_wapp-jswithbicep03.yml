@@ -10,8 +10,8 @@ on:
   workflow_dispatch:
 
 env:
-  RESOURCE_GROUP: MyTestApp
-  WEBAPP_NAME: js-with-bicep-and-github
+  RESOURCE_GROUP: MyTestApp999
+  WEBAPP_NAME: js-with-bicep-and-github999
 
 jobs:
   build:
