@@ -1,0 +1,101 @@
+pool:
+  vmImage: 'ubuntu-latest'
+  demands: maven
+
+variables:
+  resourceGroupName: 'MyTestApp'
+  location: 'westus'
+  webAppName: 'jsWithBicep03'
+  templateFile: 'azure-bicep-template.bicep'
+  azureSubscription: 'Pay-As-You-Go (b916e0d5-3358-492b-b756-7ea32791cc88)'
+  vmImageName : 'ubuntu-latest'
+
+trigger: none
+
+stages:
+  - stage: Build
+    jobs:
+    - job: build
+      steps:
+      - task: Maven@3
+        displayName: 'Maven app/pom.xml'
+        inputs:
+          mavenPomFile: 'app/pom.xml'
+          codeCoverageToolOption: Cobertura
+          jdkVersionOption: 1.8
+
+      - task: CopyFiles@2
+        displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
+        inputs:
+          SourceFolder: '$(system.defaultworkingdirectory)'
+          Contents: '**/target/*.?(war|jar)'
+          TargetFolder: '$(build.artifactstagingdirectory)'
+        condition: succeededOrFailed()
+
+      - task: PublishBuildArtifacts@1
+        displayName: 'Publish Artifact'
+        inputs:
+          PathtoPublish: '$(build.artifactstagingdirectory)'
+          ArtifactName: drop
+        condition: succeededOrFailed()
+
+
+  - stage: Provision 
+    dependsOn: Build
+    condition: succeeded()
+    jobs:
+    - job: provision_infra
+      steps:
+      - task: AzureCLI@2
+        displayName: Preview Bicep Changes
+        inputs:
+          azureSubscription: $(azureSubscription)
+          scriptType: 'bash'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            az --version
+            az group create --name $(resourceGroupName) --location $(location)
+            az deployment group what-if --resource-group $(resourceGroupName) \
+              --template-file $(templateFile) \
+              --parameters webAppName=$(webAppName)
+
+      - task: AzureCLI@2
+        displayName: Deploy Bicep To Azure
+        inputs:
+          azureSubscription: $(azureSubscription)
+          scriptType: 'bash'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            az deployment group create --resource-group $(resourceGroupName) \
+              --template-file $(templateFile) \
+              --parameters webAppName=$(webAppName)
+  - stage: Deploy
+    displayName: Deploy stage
+    dependsOn: Provision
+    condition: succeeded()
+    jobs:
+    - deployment: DeployLinuxWebApp
+      displayName: Deploy Linux Web App
+      environment: 'development'
+      pool: 
+        vmImage: $(vmImageName)
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - task: DownloadPipelineArtifact@2
+              displayName: 'Download Pipeline Artifact'
+              inputs:
+                artifactName: drop
+                buildType: 'current'
+
+            - task: AzureWebApp@1
+              displayName: 'Azure Web App Deploy: gs-spring-boot'
+              inputs:
+                azureSubscription: $(azureSubscription)
+                appType: 'webAppLinux'
+                appName: '$(webAppName)'
+                package: '$(Pipeline.Workspace)/drop/app/target/*.*'
+                runtimeStack: 'TOMCAT|9.0-jre8'
+                startUpCommand: 'java -jar /home/site/wwwroot/gs-spring-boot-0.1.0.jar --server.port=80'
+                
